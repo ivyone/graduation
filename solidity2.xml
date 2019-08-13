@@ -1,0 +1,413 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE nta PUBLIC '-//Uppaal Team//DTD Flat System 1.1//EN' 'http://www.it.uu.se/research/group/darts/uppaal/flat-1_2.dtd'>
+<nta>
+	<declaration>// Place global declarations here.
+int chairman; //address public
+int this;  //address
+clock tt;  //uint
+int  win_id;  //output
+int proposalnames_byte32[3]={1,2,3};//string input
+typedef struct{
+int  weight;
+bool voted;
+int votenum;
+int delegant;  //address
+}Voter;
+typedef struct{
+int votecount;
+int name;    //bytes32
+}proposal;
+
+typedef struct{  //mapping 
+int address;
+Voter v;
+}Voters;
+Voters voters[3];     //this code must be here.It defines mapping with struct upside.
+proposal proposals[3];   //public
+
+chan vote;
+chan deleganta;
+
+void ballot(int p[3]){ //bytes32
+int i=0;
+chairman=this;
+//tt=now;
+voters[chairman].v.weight=1;
+while(i&lt;3){
+proposals[i].name=p[i];
+proposals[i].votecount=0;
+i++;
+}
+}
+
+void GiveRightToVoter(int votera){  //address
+if(this==chairman){
+if(voters[votera].v.weight==0&amp;&amp;voters[votera].v.voted==false)
+voters[votera].v.weight=1;
+}
+}
+
+int GetWinner(){
+int biggest;
+int i;
+int win;      //return
+//int right_now=now;
+//if（right_now&gt;tt+30 seconds)
+for(i=0;i&lt;3;i++){
+if(proposals[i].votecount&lt;biggest){
+biggest=proposals[i].votecount;
+win=i;
+
+}
+}
+return win;
+}</declaration>
+	<template>
+		<name x="5" y="5">Template</name>
+		<declaration>// Place local declarations here.
+int j;
+
+
+
+
+</declaration>
+		<location id="id0" x="-561" y="-2788">
+			<name x="-571" y="-2822">S7</name>
+		</location>
+		<location id="id1" x="-816" y="-2788">
+			<name x="-826" y="-2822">S6</name>
+		</location>
+		<location id="id2" x="-705" y="-2635">
+			<name x="-715" y="-2669">S4</name>
+		</location>
+		<location id="id3" x="-705" y="-2788">
+			<name x="-715" y="-2822">S5</name>
+		</location>
+		<location id="id4" x="-705" y="-2711">
+			<name x="-715" y="-2745">S3</name>
+		</location>
+		<location id="id5" x="-816" y="-2711">
+			<name x="-824" y="-2694">S2</name>
+		</location>
+		<location id="id6" x="-926" y="-2711">
+			<name x="-960" y="-2745">S1</name>
+		</location>
+		<location id="id7" x="-1241" y="-2711">
+			<name x="-1250" y="-2745">Start</name>
+		</location>
+		<init ref="id7"/>
+		<transition>
+			<source ref="id0"/>
+			<target ref="id7"/>
+			<nail x="-561" y="-2890"/>
+			<nail x="-1335" y="-2890"/>
+			<nail x="-1369" y="-2890"/>
+			<nail x="-1369" y="-2711"/>
+		</transition>
+		<transition>
+			<source ref="id1"/>
+			<target ref="id7"/>
+			<nail x="-1241" y="-2788"/>
+		</transition>
+		<transition>
+			<source ref="id3"/>
+			<target ref="id0"/>
+			<label kind="synchronisation" x="-687" y="-2805">deleganta?</label>
+		</transition>
+		<transition>
+			<source ref="id3"/>
+			<target ref="id1"/>
+			<label kind="synchronisation" x="-798" y="-2805">vote?</label>
+		</transition>
+		<transition>
+			<source ref="id2"/>
+			<target ref="id7"/>
+			<label kind="assignment" x="-1045" y="-2652">win_id=GetWinner()</label>
+			<nail x="-1241" y="-2635"/>
+		</transition>
+		<transition>
+			<source ref="id4"/>
+			<target ref="id2"/>
+			<label kind="guard" x="-680" y="-2677">tt&gt;30</label>
+		</transition>
+		<transition>
+			<source ref="id4"/>
+			<target ref="id3"/>
+			<label kind="guard" x="-705" y="-2754">tt&lt;=30</label>
+		</transition>
+		<transition>
+			<source ref="id5"/>
+			<target ref="id4"/>
+			<label kind="assignment" x="-782" y="-2711">tt:=0</label>
+		</transition>
+		<transition>
+			<source ref="id6"/>
+			<target ref="id5"/>
+			<label kind="assignment" x="-926" y="-2754">GiveRightToVoter(j)</label>
+		</transition>
+		<transition>
+			<source ref="id7"/>
+			<target ref="id6"/>
+			<label kind="assignment" x="-1224" y="-2694">ballot(proposalnames_byte32)</label>
+		</transition>
+	</template>
+	<template>
+		<name>Delegant</name>
+		<declaration>//input address to
+Voter sender;   //storage
+Voter delegant_;  //storage
+int address_0;   //address(0)
+int to;//address input
+clock tt;</declaration>
+		<location id="id8" x="-2227" y="-433">
+			<name x="-2210" y="-467">End_vote</name>
+		</location>
+		<location id="id9" x="-1453" y="-637">
+			<name x="-1445" y="-671">revert</name>
+		</location>
+		<location id="id10" x="-2227" y="-348">
+			<name x="-2218" y="-382">S14</name>
+		</location>
+		<location id="id11" x="-2227" y="-501">
+			<name x="-2237" y="-535">S15</name>
+		</location>
+		<location id="id12" x="-1963" y="-348">
+			<name x="-1946" y="-382">Havent_Voted</name>
+		</location>
+		<location id="id13" x="-1963" y="-501">
+			<name x="-1997" y="-535">Has_Voted</name>
+		</location>
+		<location id="id14" x="-1963" y="-433">
+			<name x="-1955" y="-467">Is_voted</name>
+		</location>
+		<location id="id15" x="-1861" y="-433">
+			<name x="-1887" y="-493">Set_quote</name>
+		</location>
+		<location id="id16" x="-1717" y="-433">
+			<name x="-1751" y="-484">Set_Delegant</name>
+		</location>
+		<location id="id17" x="-1607" y="-433">
+			<name x="-1649" y="-476">Set_Voted_dele</name>
+		</location>
+		<location id="id18" x="-1054" y="-425">
+			<name x="-1045" y="-459">Go_Back_While</name>
+		</location>
+		<location id="id19" x="-1054" y="-578">
+			<name x="-1037" y="-612">Not_Chair</name>
+		</location>
+		<location id="id20" x="-1343" y="-577">
+			<name x="-1353" y="-611">Go_up_while</name>
+		</location>
+		<location id="id21" x="-1505" y="-577">
+			<name x="-1530" y="-612">Find_delegant</name>
+		</location>
+		<location id="id22" x="-1802" y="-577">
+			<name x="-1785" y="-612">Can_delegant</name>
+		</location>
+		<location id="id23" x="-1955" y="-577">
+			<name x="-1938" y="-612">Start_delegant</name>
+		</location>
+		<init ref="id23"/>
+		<transition>
+			<source ref="id8"/>
+			<target ref="id23"/>
+			<nail x="-2261" y="-433"/>
+			<nail x="-2261" y="-578"/>
+		</transition>
+		<transition>
+			<source ref="id10"/>
+			<target ref="id8"/>
+		</transition>
+		<transition>
+			<source ref="id11"/>
+			<target ref="id8"/>
+		</transition>
+		<transition>
+			<source ref="id22"/>
+			<target ref="id9"/>
+			<label kind="guard" x="-1783" y="-731">to==chairman||sender.voted==true</label>
+			<nail x="-1802" y="-697"/>
+			<nail x="-1453" y="-697"/>
+		</transition>
+		<transition>
+			<source ref="id14"/>
+			<target ref="id12"/>
+			<label kind="guard" x="-2099" y="-408">!delegant_.voted</label>
+		</transition>
+		<transition>
+			<source ref="id14"/>
+			<target ref="id13"/>
+			<label kind="guard" x="-2091" y="-493">delegant_.voted</label>
+		</transition>
+		<transition>
+			<source ref="id9"/>
+			<target ref="id23"/>
+			<nail x="-1946" y="-637"/>
+			<nail x="-1955" y="-595"/>
+		</transition>
+		<transition>
+			<source ref="id19"/>
+			<target ref="id18"/>
+			<label kind="guard" x="-1139" y="-518">!(to==this)</label>
+			<nail x="-1054" y="-569"/>
+		</transition>
+		<transition>
+			<source ref="id19"/>
+			<target ref="id9"/>
+			<label kind="guard" x="-1300" y="-663">to==this</label>
+			<nail x="-1054" y="-637"/>
+		</transition>
+		<transition>
+			<source ref="id12"/>
+			<target ref="id10"/>
+			<label kind="assignment" x="-2201" y="-323">delegant_.weight+=sender.weight</label>
+		</transition>
+		<transition>
+			<source ref="id13"/>
+			<target ref="id11"/>
+			<label kind="assignment" x="-2363" y="-603">proposals[delegant_.votenum].votecount+=sender.weight</label>
+		</transition>
+		<transition>
+			<source ref="id15"/>
+			<target ref="id14"/>
+			<label kind="assignment" x="-1963" y="-416">delegant_=voters[to].v</label>
+		</transition>
+		<transition>
+			<source ref="id16"/>
+			<target ref="id15"/>
+			<label kind="assignment" x="-1844" y="-467">sender.delegant=to</label>
+		</transition>
+		<transition>
+			<source ref="id17"/>
+			<target ref="id16"/>
+			<label kind="assignment" x="-1734" y="-416">sender.voted=true</label>
+		</transition>
+		<transition>
+			<source ref="id21"/>
+			<target ref="id17"/>
+			<label kind="guard" x="-1793" y="-535">!(voters[to].v.delegant!=address_0)</label>
+		</transition>
+		<transition>
+			<source ref="id18"/>
+			<target ref="id21"/>
+			<nail x="-1505" y="-425"/>
+		</transition>
+		<transition>
+			<source ref="id20"/>
+			<target ref="id19"/>
+			<label kind="assignment" x="-1326" y="-629">to=voters[to].v.delegant</label>
+		</transition>
+		<transition>
+			<source ref="id21"/>
+			<target ref="id20"/>
+			<label kind="guard" x="-1496" y="-561">voters[to].v.delegant!=address_0</label>
+		</transition>
+		<transition>
+			<source ref="id22"/>
+			<target ref="id21"/>
+			<label kind="guard" x="-1785" y="-569">!(sender.voted==true||to==chairman)</label>
+		</transition>
+		<transition>
+			<source ref="id23"/>
+			<target ref="id22"/>
+			<label kind="synchronisation" x="-1937" y="-594">deleganta!</label>
+			<label kind="assignment" x="-1946" y="-569">sender=voters[this].v</label>
+		</transition>
+	</template>
+	<template>
+		<name>Votea</name>
+		<declaration>//input address vote_id
+int vote_id;//input
+Voter sender;  //storage</declaration>
+		<location id="id24" x="-1062" y="-238">
+			<name x="-1045" y="-246">End_vote</name>
+		</location>
+		<location id="id25" x="-1215" y="-238">
+			<name x="-1207" y="-263">Set_votecount</name>
+		</location>
+		<location id="id26" x="-1385" y="-238">
+			<name x="-1395" y="-272">Set_votnum</name>
+		</location>
+		<location id="id27" x="-1589" y="-238">
+			<name x="-1599" y="-272">Set_voted</name>
+		</location>
+		<location id="id28" x="-1394" y="-365">
+			<name x="-1419" y="-348">revert_vote</name>
+		</location>
+		<location id="id29" x="-1589" y="-365">
+			<name x="-1623" y="-416">Cant_vote</name>
+		</location>
+		<location id="id30" x="-1751" y="-365">
+			<name x="-1761" y="-399">Start_vote</name>
+		</location>
+		<init ref="id30"/>
+		<transition>
+			<source ref="id24"/>
+			<target ref="id30"/>
+			<nail x="-1062" y="-110"/>
+			<nail x="-1751" y="-110"/>
+		</transition>
+		<transition>
+			<source ref="id25"/>
+			<target ref="id24"/>
+			<label kind="assignment" x="-1258" y="-280">proposals[vote_id].votecount+=sender.weight</label>
+		</transition>
+		<transition>
+			<source ref="id26"/>
+			<target ref="id25"/>
+			<label kind="assignment" x="-1385" y="-221">sender.votenum=vote_id</label>
+		</transition>
+		<transition>
+			<source ref="id27"/>
+			<target ref="id26"/>
+			<label kind="assignment" x="-1589" y="-221">sender.voted=true</label>
+		</transition>
+		<transition>
+			<source ref="id29"/>
+			<target ref="id27"/>
+			<label kind="guard" x="-1742" y="-297">!(sender.voted||sender.weight&lt;=0)</label>
+		</transition>
+		<transition>
+			<source ref="id28"/>
+			<target ref="id30"/>
+			<nail x="-1394" y="-450"/>
+			<nail x="-1751" y="-450"/>
+		</transition>
+		<transition>
+			<source ref="id29"/>
+			<target ref="id28"/>
+			<label kind="guard" x="-1674" y="-399">sender.voted||sender.weight&lt;=0</label>
+		</transition>
+		<transition>
+			<source ref="id30"/>
+			<target ref="id29"/>
+			<label kind="synchronisation" x="-1733" y="-382">vote!</label>
+			<label kind="assignment" x="-1768" y="-340">sender=voters[this].v</label>
+		</transition>
+	</template>
+	<system>// Place template instantiations here.
+//Process = Template();
+// List one or more processes to be composed into a system.
+system Template,Votea,Delegant;
+    </system>
+	<queries>
+		<query>
+			<formula>A[] not deadlock
+			</formula>
+			<comment>
+			</comment>
+		</query>
+		<query>
+			<formula>E&lt;&gt; Delegant.revert
+			</formula>
+			<comment>
+			</comment>
+		</query>
+		<query>
+			<formula>E&lt;&gt; Votea.End_vote
+			</formula>
+			<comment>
+			</comment>
+		</query>
+	</queries>
+</nta>
