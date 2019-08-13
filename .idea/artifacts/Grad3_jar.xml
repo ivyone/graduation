@@ -1,0 +1,10 @@
+<component name="ArtifactManager">
+  <artifact type="jar" name="Grad3:jar">
+    <output-path>$PROJECT_DIR$/out/artifacts/Grad3_jar</output-path>
+    <root id="archive" name="Grad3.jar">
+      <element id="module-output" name="Grad3" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/dom4j-2.1.1.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/mysql-connector-java-8.0.15.jar" path-in-jar="/" />
+    </root>
+  </artifact>
+</component>
